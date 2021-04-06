@@ -1,0 +1,18 @@
+name: con-curry
+version: 0.1.0
+
+authors:
+  - WhoAteDaCake <doitsimplefy@gmail.com>
+
+targets:
+  con-curry:
+    main: src/con-curry.cr
+
+dependencies:
+  commander:
+    github: mrrooijen/commander
+    version: ~> 0.4.0
+
+crystal: 1.0.0
+
+license: MIT

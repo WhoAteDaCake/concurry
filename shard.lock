@@ -1,0 +1,6 @@
+version: 2.0
+shards:
+  commander:
+    git: https://github.com/mrrooijen/commander.git
+    version: 0.4.0
+
