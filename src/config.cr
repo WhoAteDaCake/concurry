@@ -15,7 +15,8 @@ class Config
       property show : String | Array(String)
     end
 
-    property command : String;
+    property chdir : String ?
+    property command : String
     property arguments : Array(CheckedArgument | Array(String) | String)
   end
 
@@ -50,7 +51,7 @@ class Config
       spec = arg.as(Command::CheckedArgument)
       # Remove $
       if get_env(spec.when.delete_at(0), env).nil?
-        Nil
+        nil
       else
         parse(spec.show, env)
       end

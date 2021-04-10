@@ -27,7 +27,16 @@ cli = Commander::Command.new do |cmd|
 
     env = ENV
     # puts config.fill_arg("test: $DAPR_HTTP_PORT", ENV)
-    config.commands.each do | k, cmd |
+    config.commands.each do | command_name, cmd |
+      chdir = cmd.chdir
+      chdir = case chdir
+        in Nil
+          Dir.current
+        in String
+          Path[chdir].expand
+      end
+      chdir = chdir.to_s
+     
       args = cmd.arguments.reduce(Array(String).new) do | items, arg |
         result = config.parse(arg, env)
         case result
@@ -40,10 +49,34 @@ cli = Commander::Command.new do |cmd|
             items + result
         end
       end
-      puts args
-    end
-  end
+      STDOUT.printf("[%s] Starting\n", command_name)
+      out_read, out_write = IO.pipe
+      err_read, err_write = IO.pipe
+      proc = Process.new(
+        cmd.command,
+        args,
+        chdir: chdir,
+        input: Process::Redirect::Close,
+        output: out_write,
+        error: err_write
+      )
 
+      # STDOUT
+      spawn do
+        while !out_read.closed?
+          STDOUT.printf("[%s] %s", command_name, out_read.gets(chomp: false))
+        end
+      end
+
+      # STDERR
+      spawn do
+        while !err_read.closed?
+          STDERR.printf("[%s] %s", command_name, err_read.gets(chomp: false))
+        end
+      end
+    end
+    sleep
+  end
 end
 
 Commander.run(cli, ARGV)
