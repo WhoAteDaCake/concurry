@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+# crystal build ./src/concurry.cr --release --cross-compile --target x86_64-alpine-linux-muslcr -o ./dist/concurry
+crystal build ./src/concurry.cr \
+  --release \
+  --progress \
+  -o ./dist/concurry
