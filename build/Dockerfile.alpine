@@ -1,0 +1,16 @@
+FROM crystallang/crystal:1.0.0-alpine
+
+
+WORKDIR /worker
+
+ADD ./shard.yml .
+ADD ./shard.lock .
+
+RUN mkdir dist && shards install
+
+ADD ./src /worker/src
+
+RUN crystal build ./src/concurry.cr \
+  --release \
+  --progress \
+  -o ./dist/concurry-arch
