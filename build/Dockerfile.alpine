@@ -1,6 +1,5 @@
 FROM crystallang/crystal:1.0.0-alpine
 
-
 WORKDIR /worker
 
 ADD ./shard.yml .

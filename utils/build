@@ -1,16 +1,9 @@
 #!/usr/bin/env bash
 
-# crystal build ./src/concurry.cr --release --cross-compile --target x86_64-alpine-linux-muslcr -o ./dist/concurry
-# crystal build ./src/concurry.cr \
-#   --release \
-#   --progress \
-#   -o ./dist/concurry
-
-# crystal build ./src/concurry.cr \
-#   --release \
-#   --progress \
-#   --cross-compile --target "aarch64-linux-musl" \
-#   -o ./dist/concurry-arch
+# docker build --file ./build/Dockerfile.alpine -t concurry-alpine .
+# ID=$(docker create concurry-alpine)  # returns container ID
+# docker cp $ID:/worker/dist/concurry-arch ./dist/concurry-arch
+# docker rm $ID
 
 docker build --file ./build/Dockerfile.alpine -t concurry-alpine .
 ID=$(docker create concurry-alpine)  # returns container ID
