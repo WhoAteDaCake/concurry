@@ -27,6 +27,7 @@ cli = Commander::Command.new do |cmd|
 
     env = ENV
     # puts config.fill_arg("test: $DAPR_HTTP_PORT", ENV)
+    processes = Array(Process).new
     config.commands.each do | command_name, cmd |
       chdir = cmd.chdir
       chdir = case chdir
@@ -60,6 +61,8 @@ cli = Commander::Command.new do |cmd|
         output: out_write,
         error: err_write
       )
+      # Save for later checking
+      processes << proc
 
       # STDOUT
       spawn do
@@ -75,7 +78,17 @@ cli = Commander::Command.new do |cmd|
         end
       end
     end
-    sleep
+
+    loop do
+      processes.each do | p |
+        if p.terminated?
+          status = p.wait
+          exit(status.exit_code)
+        end
+      end
+      Fiber.yield
+    end
+
   end
 end
 
