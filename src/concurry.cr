@@ -66,32 +66,44 @@ cli = Commander::Command.new do |cmd|
 
       # STDOUT
       spawn do
-        while !out_read.closed?
-          STDOUT.printf("[%s][stdout] %s", command_name, out_read.gets(chomp: false))
+        until out_read.closed?
+          line = out_read.gets(chomp: false)
+          if line.nil?
+            break
+          end
+          STDOUT.printf("[%s] %s", command_name, line)
+          Fiber.yield
         end
-        Fiber.yield
       end
 
       # STDERR
       spawn do
-        while !err_read.closed?
-          STDERR.printf("[%s][stderr] %s", command_name, err_read.gets(chomp: false))
+        until err_read.closed?
+          line = err_read.gets(chomp: false)
+          if line.nil? 
+            break
+          end
+          STDERR.printf("[%s] %s", command_name, line)
+          Fiber.yield
         end
-        Fiber.yield
       end
     end
 
     loop do
-      STDOUT.printf("Checking processes\n");
       processes.each do | p |
         if p.terminated?
           status = p.wait
+          processes.each do | p2 |
+            if p2.pid != p.pid
+              p2.terminate
+              p2.wait
+            end
+          end
           exit(status.exit_code)
         end
       end
       Fiber.yield
     end
-
   end
 end
 
