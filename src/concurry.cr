@@ -69,6 +69,7 @@ cli = Commander::Command.new do |cmd|
         while !out_read.closed?
           STDOUT.printf("[%s] %s", command_name, out_read.gets(chomp: false))
         end
+        Fiber.yield
       end
 
       # STDERR
@@ -76,6 +77,7 @@ cli = Commander::Command.new do |cmd|
         while !err_read.closed?
           STDERR.printf("[%s] %s", command_name, err_read.gets(chomp: false))
         end
+        Fiber.yield
       end
     end
 
