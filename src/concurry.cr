@@ -67,7 +67,7 @@ cli = Commander::Command.new do |cmd|
       # STDOUT
       spawn do
         while !out_read.closed?
-          STDOUT.printf("[%s] %s", command_name, out_read.gets(chomp: false))
+          STDOUT.printf("[%s][stdout] %s", command_name, out_read.gets(chomp: false))
         end
         Fiber.yield
       end
@@ -75,13 +75,14 @@ cli = Commander::Command.new do |cmd|
       # STDERR
       spawn do
         while !err_read.closed?
-          STDERR.printf("[%s] %s", command_name, err_read.gets(chomp: false))
+          STDERR.printf("[%s][stderr] %s", command_name, err_read.gets(chomp: false))
         end
         Fiber.yield
       end
     end
 
     loop do
+      STDOUT.printf("Checking processes\n");
       processes.each do | p |
         if p.terminated?
           status = p.wait
