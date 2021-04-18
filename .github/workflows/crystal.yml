@@ -1,0 +1,36 @@
+name: Crystal CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest]
+        crystal: [latest]
+    
+    runs-on: ${{ matrix.os }}
+    container:
+      image: crystallang/crystal
+
+    steps:
+    - name: Install Crystal
+      uses: oprypin/install-crystal@v1
+      with:
+        crystal: ${{ matrix.crystal }}
+    - uses: actions/checkout@v2
+    - name: Install dependencies
+      run: shards install
+    - name: Build concurry binary
+      run: |
+        mkdir dist
+        crystal build ./src/concurry.cr \
+          --release \
+          --progress \
+          --static \
+          -o ./dist/concurry-${{ natrix.os }}
