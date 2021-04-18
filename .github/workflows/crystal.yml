@@ -8,29 +8,63 @@ on:
 
 jobs:
   build:
+    runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        os: [ubuntu-latest]
-        crystal: [latest]
+        include:
+          - container: crystallang/crystal:1.0.0
+            name: ubuntu
+          - container: crystallang/crystal:1.0.0-alpine
+            name: alpine
     
-    runs-on: ${{ matrix.os }}
     container:
-      image: crystallang/crystal
+      image: ${{ matrix.container }}
 
     steps:
-    - name: Install Crystal
-      uses: oprypin/install-crystal@v1
-      with:
-        crystal: ${{ matrix.crystal }}
-    - uses: actions/checkout@v2
-    - name: Install dependencies
-      run: shards install
-    - name: Build concurry binary
-      run: |
-        mkdir dist
-        crystal build ./src/concurry.cr \
-          --release \
-          --progress \
-          --static \
-          -o ./dist/concurry-${{ natrix.os }}
+      - uses: actions/checkout@v2
+      - name: Install dependencies
+        run: shards install
+      - name: Build concurry binary
+        run: |
+          mkdir dist
+          crystal build ./src/concurry.cr \
+            --release \
+            --progress \
+            --static \
+            -o ./dist/concurry-${{ matrix.name }}
+      - name: upload artifacts
+        uses: actions/upload-artifact@master
+        with:
+          name: concurry-${{ matrix.name }}
+          path: ./dist/concurry-${{ matrix.name }}
+
+  publish:
+    name: "Publish releases"
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    env:
+      ARTIFACT_DIR: ./release
+
+    steps:
+      - name: "Setup directory"
+        run: mkdir -p ${{ env.ARTIFACT_DIR }}
+      # Artifacts
+      - name: Download artifacts [concurry-alpine]
+        uses: actions/download-artifact@master
+        with:
+          name: concurry-alpine
+          path: ${{ env.ARTIFACT_DIR }}
+      - name: Download artifacts [concurry-ubuntu]
+        uses: actions/download-artifact@master
+        with:
+          name: concurry-ubuntu
+          path: ${{ env.ARTIFACT_DIR }}
+
+      - uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          tag: ${{ github.ref }}
+          file: ${{ env.ARTIFACT_DIR }}/*
+          overwrite: true
+          file_glob: true     
