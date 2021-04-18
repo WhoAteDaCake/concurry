@@ -22,9 +22,14 @@ jobs:
       image: ${{ matrix.container }}
 
     steps:
+      - name: "Install yaml deps"
+        if: ${{ matrix.name == 'alpine' }}
+        run: apk add --update yaml-dev yaml-static
+
       - uses: actions/checkout@v2
       - name: Install dependencies
         run: shards install
+  
       - name: Build concurry binary
         run: |
           mkdir dist
