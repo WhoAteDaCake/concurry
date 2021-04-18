@@ -2,11 +2,11 @@ name: Crystal CI
 
 on:
   push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
-  release:
-    branches: [ main ]
+    branches:
+      - master
+      - release-*
+    tags:
+      - v*
 
 jobs:
   build:
