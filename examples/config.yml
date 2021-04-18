@@ -1,0 +1,12 @@
+
+commands:
+  with_exit:
+    command: bash
+    arguments:
+      - -c
+      - "sleep 5 && exit"
+  with_sleep:
+    command: sleep
+    arguments:
+      - 6
+  

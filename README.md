@@ -1,22 +1,18 @@
 # con-curry
 
-TODO: Write a description here
+CLI utility to run multiple commands at once. 
 
 ## Installation
 
-TODO: Write installation instructions here
+Currently I do not provide 
 
 ## Usage
 
-TODO: Write usage instructions here
-
-## Development
-
-TODO: Write development instructions here
+Run via `concurry --config <cfgfile>`. An example config can be found in examples/config directory
 
 ## Contributing
 
-1. Fork it (<https://github.com/your-github-user/con-curry/fork>)
+1. Fork it (<https://github.com/WhoAteDaCake/concurry/fork>)
 2. Create your feature branch (`git checkout -b my-new-feature`)
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
@@ -24,4 +20,4 @@ TODO: Write development instructions here
 
 ## Contributors
 
-- [WhoAteDaCake](https://github.com/your-github-user) - creator and maintainer
+- [WhoAteDaCake](https://github.com/WhoAteDaCake) - creator and maintainer
