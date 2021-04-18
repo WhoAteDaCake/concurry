@@ -48,7 +48,7 @@ jobs:
     name: "Publish releases"
     needs: build
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    if: startsWith(github.ref, 'refs/tags/v')
 
     env:
       ARTIFACT_DIR: ./release
