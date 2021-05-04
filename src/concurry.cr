@@ -28,6 +28,8 @@ cli = Commander::Command.new do |cmd|
     env = ENV
     # puts config.fill_arg("test: $DAPR_HTTP_PORT", ENV)
     processes = Array(Process).new
+    shutdown_channel = Channel(Nil).new
+
     config.commands.each do | command_name, cmd |
       chdir = cmd.chdir
       chdir = case chdir
@@ -65,6 +67,7 @@ cli = Commander::Command.new do |cmd|
       processes << proc
 
       # STDOUT
+      # Assumes stdout is closed at the same time as stderr
       spawn do
         until out_read.closed?
           line = out_read.gets(chomp: false)
@@ -72,7 +75,6 @@ cli = Commander::Command.new do |cmd|
             break
           end
           STDOUT.printf("[%s] %s", command_name, line)
-          Fiber.yield
         end
       end
 
@@ -84,25 +86,34 @@ cli = Commander::Command.new do |cmd|
             break
           end
           STDERR.printf("[%s] %s", command_name, line)
-          Fiber.yield
         end
       end
+
+      spawn do
+        while !proc.terminated?
+          sleep 1
+        end
+        STDERR.printf("[%s] Terminated\n", command_name)
+        shutdown_channel.send(nil)
+      end
+
     end
 
-    loop do
-      processes.each do | p |
-        if p.terminated?
-          status = p.wait
-          processes.each do | p2 |
-            if p2.pid != p.pid
-              p2.terminate
-              p2.wait
-            end
+    # If any of the programs shutdown, we terminate the rest
+    shutdown_channel.receive
+    puts "Received shutdown, terminating"
+
+    processes.each do | p |
+      if p.terminated?
+        status = p.wait
+        processes.each do | p2 |
+          if p2.pid != p.pid
+            p2.terminate
+            p2.wait
           end
-          exit(status.exit_code)
         end
+        exit(status.exit_code)
       end
-      Fiber.yield
     end
   end
 end
