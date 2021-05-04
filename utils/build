@@ -1,11 +1,6 @@
 #!/usr/bin/env bash
 
-# docker build --file ./build/Dockerfile.alpine -t concurry-alpine .
-# ID=$(docker create concurry-alpine)  # returns container ID
-# docker cp $ID:/worker/dist/concurry-arch ./dist/concurry-arch
-# docker rm $ID
-
-docker build --file ./build/Dockerfile.alpine -t concurry-alpine .
-ID=$(docker create concurry-alpine)  # returns container ID
-docker cp $ID:/worker/dist/concurry-arch ./dist/concurry-arch
-docker rm $ID
+fwatcher --all-events \
+  --dir src \
+  --on-start \
+  -- crystal run src/concurry.cr --  --config ./examples/config.yml
