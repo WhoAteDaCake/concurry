@@ -1,12 +1,12 @@
+defaults: {}
 
 commands:
   with_exit:
     command: bash
     arguments:
-      - -c
-      - "sleep 5 && exit"
+      - ./examples/run.sh
   with_sleep:
     command: sleep
     arguments:
-      - 6
+      - 10
   
